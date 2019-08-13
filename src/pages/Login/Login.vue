@@ -4,16 +4,17 @@
       <div class="login_header">
         <h2 class="login_logo">硅谷外卖</h2>
         <div class="login_header_title">
-          <a href="javascript:;" class="on">短信登录</a>
-          <a href="javascript:;" >密码登录</a>
+          <a href="javascript:;" :class="{on: loginWay}" @click="loginWay=true">短信登录</a>
+          <a href="javascript:;" :class="{on: !loginWag}" @click="loginWay=false">密码登录</a>
         </div>
       </div>
       <div class="login_content">
         <form>
-          <div class="on">
+          <div :class="{on: loginWay}">
             <section class="login_message">
-              <input type="tel" maxlength="11" placeholder="手机号">
-              <button disabled="disabled" class="get_verification" >获取验证码</button>
+              <input type="tel" maxlength="11" placeholder="手机号" v-model="phone">
+              <button :disabled="!rightPhone" class="get_verification"
+                      :class="{right_phone: rightPhone}" @click.prevent="getCode">{{computeTime > 0 ? `已发送(${computeTime}s)`: '获取验证码'}}</button>
             </section>
             <section class="login_verification">
               <input type="tel" maxlength="8" placeholder="验证码">
@@ -23,17 +24,18 @@
               <a href="javascript:;">《用户服务协议》</a>
             </section>
           </div>
-          <div>
+          <div :class="{on: !loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" >
+                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="name">
               </section>
               <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="密码">
-                <div class="switch_button off">
-                  <div class="switch_circle">
+                <input type="text" maxlength="8" placeholder="密码" v-model="pwd" v-if="showPassword">
+                <input type="password" maxlength="8" placeholder="密码" v-model="pwd" v-if="!showPassword">
+                <div class="switch_button " :class="showPassword ? 'on' : 'off'" @click="showPassword=!showPassword">
+                  <div class="switch_circle" :class="{right : showPassword}">
                   </div>
-                  <span class="switch_text">...</span>
+                  <span class="switch_text">{{showPassword ? 'abc' : '...'}}</span>
                 </div>
               </section>
               <section class="login_message">
@@ -55,7 +57,40 @@
 
 <script>
   export default {
-    name: 'Login'
+    data() {
+      return{
+      loginWay: true,
+        computeTime: 0,
+        phone:'',
+        showPassword: false,
+        phone:'',
+        code: '',
+        name: '',
+        pwd: '',
+    }
+    },
+    mounted(){
+      this.name = ''
+      this.pwd = ''
+    },
+    computed:{
+      rightPhone(){
+        return /^1\d{10}$/.test(this.phone)
+      }
+    },
+    methods:{
+      getCode (){
+        alert('----')
+        this.computeTime = 30
+       const intervalId = setInterval(() => {
+          this.computeTime--
+          if (this.computeTime <= 0) {
+            clearInterval(intervalId)
+          }
+        },1000)
+
+      }
+    }
   }
 </script>
 
@@ -125,7 +160,8 @@
                 color #ccc
                 font-size 14px
                 background transparent
-
+                &.right_phone
+                  color black
             .login_verification
               position relative
               margin-top 16px
